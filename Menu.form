@@ -34,12 +34,12 @@
           <text value="Crear"/>
         </properties>
       </component>
-      <component id="e9100" class="javax.swing.JRadioButton" binding="leerRadioButton" default-binding="true">
+      <component id="e9100" class="javax.swing.JRadioButton" binding="visualizarRadioButton" default-binding="true">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Leer"/>
+          <text value="Visualizar"/>
         </properties>
       </component>
       <component id="37e47" class="javax.swing.JRadioButton" binding="actualizarRadioButton" default-binding="true">
