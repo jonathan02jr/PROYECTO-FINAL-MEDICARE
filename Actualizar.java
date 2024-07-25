@@ -2,9 +2,7 @@ import javax.swing.*;
 
 public class Actualizar extends JFrame {
     private JPanel panel4;
-
-
-
+    private JTextField textField1;
 
 
     public Actualizar(){
