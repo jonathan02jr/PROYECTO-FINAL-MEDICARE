@@ -27,6 +27,30 @@ public class Menu_Medico extends JFrame{
                 dispose();
             }
         });
+        registrarHisotrialesMédicosRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Historial_Medico historial = new Historial_Medico();
+                historial.iniciar();
+                dispose();
+            }
+        });
+        registrarResultadosDeExámenesRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Resultados_Examen examen = new Resultados_Examen();
+                examen.iniciar();
+                dispose();
+            }
+        });
+        asignarTratamientosRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Tratamiento_medicamentos proceso = new Tratamiento_medicamentos();
+                proceso.iniciar();
+                dispose();
+            }
+        });
         salirButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

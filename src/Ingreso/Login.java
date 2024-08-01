@@ -25,58 +25,89 @@ public class Login extends JFrame{
         iniciarSesiónButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String url = "jdbc:mysql://localhost:3306/medicare";
-                String user = "root";
-                String password = "";
 
-                try (Connection conecta = DriverManager.getConnection(url,user,password)){
-                    System.out.println("Conectado a la base de datos");
+                String usuario1 = usuario0.getText();
+                String contrasenia1 = new String(contrasena0.getPassword());
 
-                    String usuario1 = usuario0.getText();
-                    String contrasenia1 = new String(contrasena0.getPassword());
+                //int posicion = opcionesPerfil.getSelectedIndex(); -- para tomar la posicion en vez del texto
+                String item = opcionesPerfil.getSelectedItem().toString();
 
-                    // Consulta de la base de datos
-                    String sql = "select * from acceso where usuario=? and contraseña =?";
-                    PreparedStatement pst = conecta.prepareStatement(sql);
-                    pst.setString(1, usuario1);
-                    pst.setString(2, contrasenia1);
+                if (usuario1.equals("Jonathan") && contrasenia1.equals("jonathan123")){
+                    System.out.println("Inicio exitosoo");
 
-                    ResultSet resultado = pst.executeQuery();
 
-                    if (resultado.next()){
-                        System.out.println("Inicio exitosoo");
+                    JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Administrador","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
 
-                        //int posicion = opcionesPerfil.getSelectedIndex(); -- para tomar la posicion en vez del texto
-                        String item = opcionesPerfil.getSelectedItem().toString();
-                        if(item.equals("Administrador")){
-                            JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Administrador","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
-
-                            Menu_Admi administrador = new Menu_Admi();
-                            administrador.iniciar();
-                            dispose();
-                        }
-                        else if (item.equals("Medico")) {
-                            JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Médico","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
-
-                            Menu_Medico medico = new Menu_Medico();
-                            medico.iniciar();
-                            dispose();
-                        }
-                        else {
-                            JOptionPane.showMessageDialog(null,"Por favor seleccione un perfil","ERROR",JOptionPane.ERROR_MESSAGE);
-                        }
-
-                    }
-                    else{
-                        System.out.println("Usuario o contrasela incorrectos. Intente de nuevo");
-                        JOptionPane.showMessageDialog(null,"Usuario o contraseña incorrectos \nIntente de nuevo", "Error", JOptionPane.ERROR_MESSAGE);
-                        usuario0.setText("");
-                        contrasena0.setText("");
-                    }
+                    Menu_Admi administrador = new Menu_Admi();
+                    administrador.iniciar();
+                    dispose();
                 }
-                catch (SQLException ex){
-                    JOptionPane.showMessageDialog(null, "No se ha conectado a la base de datos","ERROR",JOptionPane.ERROR_MESSAGE);
+                else if (item.equals("Medico")) {
+                    JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Médico","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
+
+                    Menu_Medico medico = new Menu_Medico();
+                    medico.iniciar();
+                    dispose();
                 }
+                else {
+                    JOptionPane.showMessageDialog(null,"Por favor seleccione un perfil","ERROR",JOptionPane.ERROR_MESSAGE);
+                }
+
+
+
+
+//                String url = "jdbc:mysql://localhost:3306/medicare";
+//                String user = "root";
+//                String password = "";
+//
+//                try (Connection conecta = DriverManager.getConnection(url,user,password)){
+//                    System.out.println("Conectado a la base de datos");
+//
+//                    String usuario1 = usuario0.getText();
+//                    String contrasenia1 = new String(contrasena0.getPassword());
+//
+//                    // Consulta de la base de datos
+//                    String sql = "select * from acceso where usuario=? and contraseña =?";
+//                    PreparedStatement pst = conecta.prepareStatement(sql);
+//                    pst.setString(1, usuario1);
+//                    pst.setString(2, contrasenia1);
+//
+//                    ResultSet resultado = pst.executeQuery();
+//
+//                    if (resultado.next()){
+//                        System.out.println("Inicio exitosoo");
+//
+//                        //int posicion = opcionesPerfil.getSelectedIndex(); -- para tomar la posicion en vez del texto
+//                        String item = opcionesPerfil.getSelectedItem().toString();
+//                        if(item.equals("Administrador")){
+//                            JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Administrador","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
+//
+//                            Menu_Admi administrador = new Menu_Admi();
+//                            administrador.iniciar();
+//                            dispose();
+//                        }
+//                        else if (item.equals("Medico")) {
+//                            JOptionPane.showMessageDialog(null,"Inicio Exitoso \nBienvenido al panel del Médico","ÉXITO",JOptionPane.INFORMATION_MESSAGE);
+//
+//                            Menu_Medico medico = new Menu_Medico();
+//                            medico.iniciar();
+//                            dispose();
+//                        }
+//                        else {
+//                            JOptionPane.showMessageDialog(null,"Por favor seleccione un perfil","ERROR",JOptionPane.ERROR_MESSAGE);
+//                        }
+//
+//                    }
+//                    else{
+//                        System.out.println("Usuario o contrasela incorrectos. Intente de nuevo");
+//                        JOptionPane.showMessageDialog(null,"Usuario o contraseña incorrectos \nIntente de nuevo", "Error", JOptionPane.ERROR_MESSAGE);
+//                        usuario0.setText("");
+//                        contrasena0.setText("");
+//                    }
+//                }
+//                catch (SQLException ex){
+//                    JOptionPane.showMessageDialog(null, "No se ha conectado a la base de datos","ERROR",JOptionPane.ERROR_MESSAGE);
+//                }
             }
         });
 

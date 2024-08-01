@@ -4,20 +4,16 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Citas_Medico extends JFrame{
-    private JPanel agregar_citas;
+public class Historial_Medico extends JFrame {
     private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField4;
-    private JButton guardarButton;
-    private JButton mostrarButton;
-    private JTextField textField5;
-    private JTextField textField3;
+    private JButton buscarButton;
+    private JPanel Panel_historial_medico;
+    private JButton volverButton;
 
-    public Citas_Medico(){
-        super("Crear");
-        setContentPane(agregar_citas);
-        guardarButton.addActionListener(new ActionListener() {
+    public Historial_Medico(){
+        super("Historial Medico");
+        setContentPane(Panel_historial_medico);
+        volverButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Menu_Medico medico = new Menu_Medico();

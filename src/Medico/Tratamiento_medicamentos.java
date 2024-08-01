@@ -1,23 +1,28 @@
 package Medico;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Citas_Medico extends JFrame{
-    private JPanel agregar_citas;
+public class Tratamiento_medicamentos extends JFrame{
+    private JPanel panel_tratamientos_medico;
     private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField4;
-    private JButton guardarButton;
     private JButton mostrarButton;
-    private JTextField textField5;
+    private JTextField textField2;
     private JTextField textField3;
+    private JTextField textField4;
+    private JTextField textField5;
+    private JTextField textField6;
+    private JTextField textField7;
+    private JButton guardarButton;
+    private JButton volverButton;
+    private JButton cancelarButton;
 
-    public Citas_Medico(){
-        super("Crear");
-        setContentPane(agregar_citas);
-        guardarButton.addActionListener(new ActionListener() {
+    public Tratamiento_medicamentos(){
+        super("Tratamientos y medicametos");
+        setContentPane(panel_tratamientos_medico);
+        volverButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Menu_Medico medico = new Menu_Medico();
@@ -26,6 +31,7 @@ public class Citas_Medico extends JFrame{
             }
         });
     }
+
 
     public void iniciar(){
         setVisible(true);
