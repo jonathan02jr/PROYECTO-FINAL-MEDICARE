@@ -1,15 +1,8 @@
-package Ingreso;
-
-import Administrador.Menu_Admi;
-import Medico.Citas_Medico;
 import Medico.Menu_Medico;
 
-
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
 
 public class Login extends JFrame{
     private JPanel panel0;
@@ -36,20 +29,19 @@ public class Login extends JFrame{
                 if (usuario1.equals("Jonathan") && contrasenia1.equals("jonathan123")) {
                     System.out.println("Inicio exitosoo");
 
-
-                    JOptionPane.showMessageDialog(null, "Inicio Exitoso \nBienvenido al panel del Administrador", "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
-
                     if (item.equals("Administrador")) {
                         JOptionPane.showMessageDialog(null, "Inicio Exitoso \nBienvenido al panel del Administrador", "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
 
-
-
+                        Panel_Administrador admi = new Panel_Administrador();
+                        admi.iniciar();
+                        dispose();
                     } else if (item.equals("Medico")) {
                         JOptionPane.showMessageDialog(null, "Inicio Exitoso \nBienvenido al panel del Médico", "ÉXITO", JOptionPane.INFORMATION_MESSAGE);
 
-                        Menu_Medico medico = new Menu_Medico();
+                        Panel_Medico medico = new Panel_Medico();
                         medico.iniciar();
                         dispose();
+
                     } else {
                         JOptionPane.showMessageDialog(null, "Por favor seleccione un perfil", "ERROR", JOptionPane.ERROR_MESSAGE);
                     }
