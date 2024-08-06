@@ -772,7 +772,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <grid id="57fbf" binding="ver_registros" layout-manager="GridLayoutManager" row-count="4" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                  <grid id="57fbf" binding="ver_registros" layout-manager="GridLayoutManager" row-count="5" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
                       <tabbedpane title="Registros"/>
@@ -806,14 +806,6 @@
                         </constraints>
                         <properties/>
                       </component>
-                      <component id="1bea2" class="javax.swing.JLabel">
-                        <constraints>
-                          <grid row="3" column="1" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-                        </constraints>
-                        <properties>
-                          <text value="INFORMACION"/>
-                        </properties>
-                      </component>
                       <component id="9b540" class="javax.swing.JButton" binding="buscarButton" default-binding="true">
                         <constraints>
                           <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
@@ -838,6 +830,24 @@
                           <text value="Cedula:"/>
                         </properties>
                       </component>
+                      <scrollpane id="6568f">
+                        <constraints>
+                          <grid row="3" column="1" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                        <properties/>
+                        <border type="none"/>
+                        <children>
+                          <component id="6a776" class="javax.swing.JTable" binding="table1" default-binding="true">
+                            <constraints/>
+                            <properties/>
+                          </component>
+                        </children>
+                      </scrollpane>
+                      <vspacer id="e5f98">
+                        <constraints>
+                          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                        </constraints>
+                      </vspacer>
                     </children>
                   </grid>
                   <grid id="64e65" binding="ver_resportes" layout-manager="GridLayoutManager" row-count="4" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
