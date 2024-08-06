@@ -1,10 +1,14 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 //import java.sql.Connection;
 //import java.sql.DriverManager;
 //import java.sql.PreparedStatement;
 //import java.sql.SQLException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.*;
 
 public class Panel_Administrador extends JFrame{
@@ -62,10 +66,20 @@ public class Panel_Administrador extends JFrame{
     private JButton actualizar_paciente;
     private JComboBox sexo_actualizar_paciente1;
     private JButton mostrar_pacientes;
+    private JTable table1;
 
     public Panel_Administrador(){
         super("Panel del Administrador");
         setContentPane(pantalla_admi);
+
+        //camnbio para ingresa una imagen
+        //para poder utilizar la tabla y crear los campos de la informacion que se obtendra de la base de datos
+        String[] columnNames = {"n_historial_clinico","cedula", "nombre", "apellido", "fecha_nacimiento", "sexo", "telefono", "email"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        table1.setModel(model);
+
+        //se configrua el reinder de celdas para la columna imagen
+
 
         guardar_info_medico.addActionListener(new ActionListener() {
             @Override
@@ -81,9 +95,13 @@ public class Panel_Administrador extends JFrame{
         guardar_info_pacientes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //cambio para ingresa una imagen
                 try {
                     registro_pacientes();
-                }catch (SQLException ex){
+                } catch (SQLException ex) {
+
+                } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -201,7 +219,7 @@ public class Panel_Administrador extends JFrame{
      * Registro de los pacientes a la base de datos
      * @throws SQLException
      */
-    public void registro_pacientes() throws SQLException{
+    public void registro_pacientes() throws SQLException, IOException {
 
         String cedula_paciente0 = cedula_paciente1.getText();
         String nombre_paciente0 = nombre_paciente1.getText();
@@ -212,40 +230,58 @@ public class Panel_Administrador extends JFrame{
         String email_paciente0 = email_paciente1.getText();
 
         Connection conectar = conexion();
+
+        //añadir una imagen
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
         String numero_historial = obtener_n_historial(conectar);
 
-        String sql = "INSERT INTO pacientes (n_historial_clinico,cedula, nombre, apellido, fecha_nacimiento, sexo, telefono, email) VALUES(?,?,?,?,?,?,?,?)";
+        //camnio para ingresar una imagen
+        int result = fileChooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            String rutaImagen = selectedFile.getAbsolutePath();
+            String nombreImagen = selectedFile.getName();
+            FileInputStream fis = new FileInputStream(new File(rutaImagen));
 
-        PreparedStatement pstm = conectar.prepareStatement(sql);
-        pstm.setInt(1,Integer.parseInt(numero_historial));
-        pstm.setString(2,cedula_paciente0);
-        pstm.setString(3,nombre_paciente0);
-        pstm.setString(4,apellido_paciente0);
-        pstm.setString(5,fechaNacimiento0);
-        pstm.setString(6,sexo_paciente0);
-        pstm.setString(7,telefono_paciente0);
-        pstm.setString(8,email_paciente0);
+            String sql = "INSERT INTO pacientes (n_historial_clinico,cedula, nombre, apellido, fecha_nacimiento, sexo, telefono, email, nombreimagen, imagen) VALUES(?,?,?,?,?,?,?,?,?,?)";
 
-        int alterar_fila = pstm.executeUpdate();
+            PreparedStatement pstm = conectar.prepareStatement(sql);
+            pstm.setInt(1,Integer.parseInt(numero_historial));
+            pstm.setString(2,cedula_paciente0);
+            pstm.setString(3,nombre_paciente0);
+            pstm.setString(4,apellido_paciente0);
+            pstm.setString(5,fechaNacimiento0);
+            pstm.setString(6,sexo_paciente0);
+            pstm.setString(7,telefono_paciente0);
+            pstm.setString(8,email_paciente0);
 
-        if(alterar_fila >0){
-            System.out.println("Datos ingresados con éxito");
-            JOptionPane.showMessageDialog(null,"Datos ingresados con éxito","ÉXTO",JOptionPane.INFORMATION_MESSAGE);
+            //agregado para crear la imagen
+            pstm.setString(9, nombreImagen);
+            pstm.setBinaryStream(10, fis, (int) new File(rutaImagen).length());
+
+            int alterar_fila = pstm.executeUpdate();
+
+            if(alterar_fila >0){
+                System.out.println("Datos ingresados con éxito");
+                JOptionPane.showMessageDialog(null,"Datos ingresados con éxito","ÉXTO",JOptionPane.INFORMATION_MESSAGE);
 
 
-            cedula_paciente1.setText("");
-            nombre_paciente1.setText("");
-            apellido_paciente1.setText("");
-            fechaNacimiento_paciente1.setText("");
-            sexo_paciente1.setSelectedIndex(-1);
-            telefono_paciente1.setText("");
-            email_paciente1.setText("");
+                cedula_paciente1.setText("");
+                nombre_paciente1.setText("");
+                apellido_paciente1.setText("");
+                fechaNacimiento_paciente1.setText("");
+                sexo_paciente1.setSelectedIndex(-1);
+                telefono_paciente1.setText("");
+                email_paciente1.setText("");
 
-        }else {
-            JOptionPane.showMessageDialog(null,"Fallo con los datos ingresados","ERROR",JOptionPane.ERROR_MESSAGE);
+            }else {
+                JOptionPane.showMessageDialog(null,"Fallo con los datos ingresados","ERROR",JOptionPane.ERROR_MESSAGE);
+            }
+            pstm.close();
+            conectar.close();
         }
-        pstm.close();
-        conectar.close();
 
     }
 
