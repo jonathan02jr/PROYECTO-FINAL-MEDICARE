@@ -2,13 +2,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.sql.Connection;
-//import java.sql.DriverManager;
-//import java.sql.PreparedStatement;
-//import java.sql.SQLException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
 
 public class Panel_Administrador extends JFrame{
@@ -26,8 +19,8 @@ public class Panel_Administrador extends JFrame{
     private JPanel pantalla_admi;
     private JTabbedPane tabbedPane4;
     private JPanel ver_registros;
-    private JButton buscarButton;
-    private JButton eliminarButton;
+    private JButton buscar_info_tabla;
+    private JButton eliminar_info_tabla;
     private JPanel ver_resportes;
     private JComboBox sexo_paciente1;
     private JButton salirButton;
@@ -66,26 +59,43 @@ public class Panel_Administrador extends JFrame{
     private JButton actualizar_paciente;
     private JComboBox sexo_actualizar_paciente1;
     private JButton mostrar_pacientes;
-    private JTable table1;
+    private JTable tabla_registros;
+    private JTextField cedula_ver_registro1;
+    private JButton limpiar_tabla;
+    private JComboBox tipo_registro;
+    private JButton actualizar_tabla;
+
+
+    private JLabel info_n_citas1;
+    private JLabel info_n_pacientes1;
+    private JLabel info_n_medicos;
+    private JLabel cedula_ultima_act1;
+    private JLabel paciente_ultima_act1;
+    private JLabel fecha_ultima_act1;
+    private JButton actualizar_resportes;
 
     public Panel_Administrador(){
         super("Panel del Administrador");
         setContentPane(pantalla_admi);
 
-        //camnbio para ingresa una imagen
+
         //para poder utilizar la tabla y crear los campos de la informacion que se obtendra de la base de datos
-        String[] columnNames = {"n_historial_clinico","cedula", "nombre", "apellido", "fecha_nacimiento", "sexo", "telefono", "email"};
+        //Titulos de los campos
+        // Configurar el JComboBox
+        tipo_registro.setModel(new DefaultComboBoxModel<>(new String[]{"Pacientes", "Medicos"}));
+
+        // Configurar la tabla de registros
+        String[] columnNames = {"cedula", "nombre", "apellido", "email"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        table1.setModel(model);
-
-        //se configrua el reinder de celdas para la columna imagen
+        tabla_registros.setModel(model);
 
 
+        //CODIGO NORMAL
         guardar_info_medico.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    registro_medicos();
+                    registro_info_medicos();
                 }catch (SQLException ex){
                     throw new RuntimeException(ex);
                 }
@@ -95,13 +105,9 @@ public class Panel_Administrador extends JFrame{
         guardar_info_pacientes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                //cambio para ingresa una imagen
                 try {
-                    registro_pacientes();
+                    registro_info_pacientes();
                 } catch (SQLException ex) {
-
-                } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -157,6 +163,56 @@ public class Panel_Administrador extends JFrame{
                 dispose();
             }
         });
+
+        //botones para el funcionamiento de la informacion de registross
+        buscar_info_tabla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    buscar_registros_tabla();
+                }catch (SQLException ex){
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        eliminar_info_tabla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    eliminar_registro_tabla();
+                }catch (SQLException ex){
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        limpiar_tabla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                limpiar_registros_tabla();
+            }
+        });
+        actualizar_tabla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    actualizar_registros_tabla();
+                }catch (SQLException ex){
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        actualizar_resportes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    actualizar_info_reportes();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error al actualizar la información de reportes.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     /**
@@ -176,7 +232,7 @@ public class Panel_Administrador extends JFrame{
      * Registro de medicos a la base de datos
      * @throws SQLException
      */
-    public void registro_medicos() throws SQLException{
+    public void registro_info_medicos() throws SQLException{
 
         String cedula_medico0 = cedula_medico1.getText();
         String nombre_medico0 = nombre_medico1.getText();
@@ -219,7 +275,7 @@ public class Panel_Administrador extends JFrame{
      * Registro de los pacientes a la base de datos
      * @throws SQLException
      */
-    public void registro_pacientes() throws SQLException, IOException {
+    public void registro_info_pacientes() throws SQLException{
 
         String cedula_paciente0 = cedula_paciente1.getText();
         String nombre_paciente0 = nombre_paciente1.getText();
@@ -230,59 +286,39 @@ public class Panel_Administrador extends JFrame{
         String email_paciente0 = email_paciente1.getText();
 
         Connection conectar = conexion();
-
-        //añadir una imagen
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-
         String numero_historial = obtener_n_historial(conectar);
 
-        //camnio para ingresar una imagen
-        int result = fileChooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String rutaImagen = selectedFile.getAbsolutePath();
-            String nombreImagen = selectedFile.getName();
-            FileInputStream fis = new FileInputStream(new File(rutaImagen));
+        String sql = "INSERT INTO pacientes (n_historial_clinico,cedula, nombre, apellido, fecha_nacimiento, sexo, telefono, email) VALUES(?,?,?,?,?,?,?,?)";
 
-            String sql = "INSERT INTO pacientes (n_historial_clinico,cedula, nombre, apellido, fecha_nacimiento, sexo, telefono, email, nombreimagen, imagen) VALUES(?,?,?,?,?,?,?,?,?,?)";
+        PreparedStatement pstm = conectar.prepareStatement(sql);
+        pstm.setInt(1,Integer.parseInt(numero_historial));
+        pstm.setString(2,cedula_paciente0);
+        pstm.setString(3,nombre_paciente0);
+        pstm.setString(4,apellido_paciente0);
+        pstm.setString(5,fechaNacimiento0);
+        pstm.setString(6,sexo_paciente0);
+        pstm.setString(7,telefono_paciente0);
+        pstm.setString(8,email_paciente0);
 
-            PreparedStatement pstm = conectar.prepareStatement(sql);
-            pstm.setInt(1,Integer.parseInt(numero_historial));
-            pstm.setString(2,cedula_paciente0);
-            pstm.setString(3,nombre_paciente0);
-            pstm.setString(4,apellido_paciente0);
-            pstm.setString(5,fechaNacimiento0);
-            pstm.setString(6,sexo_paciente0);
-            pstm.setString(7,telefono_paciente0);
-            pstm.setString(8,email_paciente0);
+        int alterar_fila = pstm.executeUpdate();
 
-            //agregado para crear la imagen
-            pstm.setString(9, nombreImagen);
-            pstm.setBinaryStream(10, fis, (int) new File(rutaImagen).length());
+        if(alterar_fila >0){
+            System.out.println("Datos ingresados con éxito");
+            JOptionPane.showMessageDialog(null,"Datos ingresados con éxito","ÉXTO",JOptionPane.INFORMATION_MESSAGE);
 
-            int alterar_fila = pstm.executeUpdate();
+            cedula_paciente1.setText("");
+            nombre_paciente1.setText("");
+            apellido_paciente1.setText("");
+            fechaNacimiento_paciente1.setText("");
+            sexo_paciente1.setSelectedIndex(-1);
+            telefono_paciente1.setText("");
+            email_paciente1.setText("");
 
-            if(alterar_fila >0){
-                System.out.println("Datos ingresados con éxito");
-                JOptionPane.showMessageDialog(null,"Datos ingresados con éxito","ÉXTO",JOptionPane.INFORMATION_MESSAGE);
-
-
-                cedula_paciente1.setText("");
-                nombre_paciente1.setText("");
-                apellido_paciente1.setText("");
-                fechaNacimiento_paciente1.setText("");
-                sexo_paciente1.setSelectedIndex(-1);
-                telefono_paciente1.setText("");
-                email_paciente1.setText("");
-
-            }else {
-                JOptionPane.showMessageDialog(null,"Fallo con los datos ingresados","ERROR",JOptionPane.ERROR_MESSAGE);
-            }
-            pstm.close();
-            conectar.close();
+        }else {
+            JOptionPane.showMessageDialog(null,"Fallo con los datos ingresados","ERROR",JOptionPane.ERROR_MESSAGE);
         }
-
+        pstm.close();
+        conectar.close();
     }
 
     /**
@@ -480,6 +516,185 @@ public class Panel_Administrador extends JFrame{
             JOptionPane.showMessageDialog(null,"Error en la actualizacion","Error",JOptionPane.ERROR_MESSAGE);
         }
         pstm.close();
+        conectar.close();
+    }
+
+
+    //CAMBIOS REALIZADOS PARA POR VER LA VISUALIZACION DE LOS REGISTROS
+
+    /**
+     * Metodo para buscar los registros en la tabla
+     * @throws SQLException
+     */
+    public  void buscar_registros_tabla() throws SQLException {
+        Connection conectar = conexion();
+        String tipo = tipo_registro.getSelectedItem().toString();
+        String cedula = cedula_ver_registro1.getText();
+        String sql = "";
+
+        if (tipo.equals("Pacientes")) {
+            sql = "SELECT * FROM pacientes WHERE cedula = ?";
+        } else if (tipo.equals("Medicos")) {
+            sql = "SELECT * FROM medicos WHERE cedula = ?";
+        }
+
+        PreparedStatement pstm = conectar.prepareStatement(sql);
+        pstm.setString(1, cedula);
+        ResultSet rs = pstm.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) tabla_registros.getModel();
+        model.setRowCount(0); // Limpiar tabla
+
+        while (rs.next()) {
+            Object[] row = {
+                    rs.getString("cedula"),
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("email")
+            };
+            model.addRow(row);
+        }
+        rs.close();
+        pstm.close();
+        conectar.close();
+    }
+
+    /**
+     * Metodo para actualizar la tabla
+     * @throws SQLException
+     */
+    public void actualizar_registros_tabla() throws SQLException {
+        Connection conectar = conexion();
+        String tipo = tipo_registro.getSelectedItem().toString();
+        String sql = "";
+
+        if (tipo.equals("Pacientes")) {
+            sql = "SELECT * FROM pacientes";
+        } else if (tipo.equals("Medicos")) {
+            sql = "SELECT * FROM medicos";
+        }
+
+        PreparedStatement pstm = conectar.prepareStatement(sql);
+        ResultSet rs = pstm.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) tabla_registros.getModel();
+        model.setRowCount(0); // Limpiar tabla
+
+        while (rs.next()) {
+            Object[] row = {
+                    rs.getString("cedula"),
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("email")
+            };
+            model.addRow(row);
+        }
+        rs.close();
+        pstm.close();
+        conectar.close();
+    }
+
+    /**
+     * Para limpiar la informacion que se visualiza en la tabla
+     */
+    public void limpiar_registros_tabla() {
+        DefaultTableModel model = (DefaultTableModel) tabla_registros.getModel();
+        model.setRowCount(0); // Limpiar todas las filas
+    }
+
+    /**
+     * Metodo para eliminar los registros de una tabla ya sea del medio o del paciente
+     * @throws SQLException
+     */
+    public void eliminar_registro_tabla() throws SQLException {
+        int selectedRow = tabla_registros.getSelectedRow();
+        if (selectedRow >= 0) {
+            String cedula = (String) tabla_registros.getValueAt(selectedRow, 0);
+            String tipo = tipo_registro.getSelectedItem().toString();
+            String sql = "";
+
+            if (tipo.equals("Pacientes")) {
+                sql = "DELETE FROM pacientes WHERE cedula = ?";
+            } else if (tipo.equals("Medicos")) {
+                sql = "DELETE FROM medicos WHERE cedula = ?";
+            }
+
+            Connection conectar = conexion();
+            PreparedStatement pstm = conectar.prepareStatement(sql);
+            pstm.setString(1, cedula);
+            int rowsAffected = pstm.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Registro eliminado con éxito", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo eliminar el registro", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            pstm.close();
+            conectar.close();
+            actualizar_registros_tabla(); // Actualizar tabla después de eliminar
+        } else {
+            JOptionPane.showMessageDialog(null, "Seleccione un registro para eliminar", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    /**
+     * metodo para actualizar los repsortes y asi poder visualizarlos
+     * @throws SQLException
+     */
+    public void actualizar_info_reportes() throws SQLException {
+        // Conectar a la base de datos
+        Connection conectar = conexion();
+
+        // Consultar el número de citas
+        String sqlCitas = "SELECT COUNT(*) AS total FROM citas";
+        PreparedStatement pstmCitas = conectar.prepareStatement(sqlCitas);
+        ResultSet rsCitas = pstmCitas.executeQuery();
+        if (rsCitas.next()) {
+            int totalCitas = rsCitas.getInt("total");
+            info_n_citas1.setText(String.valueOf(totalCitas));
+        }
+
+        // Consultar el número de pacientes
+        String sqlPacientes = "SELECT COUNT(*) AS total FROM pacientes";
+        PreparedStatement pstmPacientes = conectar.prepareStatement(sqlPacientes);
+        ResultSet rsPacientes = pstmPacientes.executeQuery();
+        if (rsPacientes.next()) {
+            int totalPacientes = rsPacientes.getInt("total");
+            info_n_pacientes1.setText(String.valueOf(totalPacientes));
+        }
+
+        // Consultar el número de médicos
+        String sqlMedicos = "SELECT COUNT(*) AS total FROM medicos";
+        PreparedStatement pstmMedicos = conectar.prepareStatement(sqlMedicos);
+        ResultSet rsMedicos = pstmMedicos.executeQuery();
+        if (rsMedicos.next()) {
+            int totalMedicos = rsMedicos.getInt("total");
+            info_n_medicos.setText(String.valueOf(totalMedicos));
+        }
+
+        // Consultar la última cita y el nombre del paciente asociado
+        String sqlUltimaCita = "SELECT c.cedula_paciente, p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, c.fecha_cita " +
+                "FROM citas c " +
+                "JOIN pacientes p ON c.cedula_paciente = p.cedula " +
+                "ORDER BY c.fecha_cita DESC, c.hora_cita DESC LIMIT 1";
+        PreparedStatement pstmUltimaCita = conectar.prepareStatement(sqlUltimaCita);
+        ResultSet rsUltimaCita = pstmUltimaCita.executeQuery();
+        if (rsUltimaCita.next()) {
+            String cedulaPaciente = rsUltimaCita.getString("cedula_paciente");
+            String nombrePaciente = rsUltimaCita.getString("paciente_nombre") + " " + rsUltimaCita.getString("paciente_apellido");
+            java.sql.Date fechaCita = rsUltimaCita.getDate("fecha_cita");
+
+            cedula_ultima_act1.setText(cedulaPaciente);
+            paciente_ultima_act1.setText(nombrePaciente);
+            fecha_ultima_act1.setText(fechaCita.toString());
+        }
+
+        // Cerrar recursos
+        rsCitas.close();
+        pstmCitas.close();
+        rsPacientes.close();
+        pstmPacientes.close();
+        rsMedicos.close();
+        pstmMedicos.close();
+        rsUltimaCita.close();
+        pstmUltimaCita.close();
         conectar.close();
     }
 
