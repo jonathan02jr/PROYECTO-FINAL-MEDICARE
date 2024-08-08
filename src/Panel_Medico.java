@@ -33,22 +33,34 @@ public class Panel_Medico extends JFrame{
     private JButton guardar_consulta;
     private JButton buscar_cedula_consulta;
     private JButton Sallir;
-    private JTable tabla_citas_pendientes;
-    private JTextField cedula_historial_cita1;
-    private JButton buscar_cedula_historial1;
-    private JButton limpiar_campos_citas;
-    private JButton actualizar_tabla_citas;
+    private JTextField cedula_ver_cita1;
+    private JButton buscar_info_tabla;
+    private JButton limpiar_tabla;
+    private JButton actualizar_tabla;
+    private JButton verAgendaButton;
+    private JButton eliminar_info_tabla;
+    private JComboBox medico_ver;
+    private JTable tablaCitasPendientes;
+
 
     public Panel_Medico(){
         super("Panel del Médico");
         setContentPane(pantalla_medico);
 
-        //para visualizar todos los datos de la base de datos en la tabla
-        try {
-            mostrarTodasCitasPendientes();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        //para poder utilizar la tabla y crear los campos de la informacion que se obtendra de la base de datos
+        //Titulos de los campos
+        // Configurar el JComboBox
+        medico_ver.setModel(new DefaultComboBoxModel<>(new String[]{"Alex Torres", "Victoria Paez"}));
+
+        // Configurar la tabla de registros
+        String[] columnNames = {"Cedula Paciente", "Fecha Cita", "Hora Cita", "Médico","Motivo"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        tablaCitasPendientes.setModel(model);
+
+
+        /**
+         * BOTONONES PARA HACER FUNCIONAR LAS FUNCIONALIDADES DEL SISTEMA
+         */
 
         buscar_cedula_cita.addActionListener(new ActionListener() {
             @Override
@@ -101,31 +113,48 @@ public class Panel_Medico extends JFrame{
                 dispose();
             }
         });
-        buscar_cedula_historial1.addActionListener(new ActionListener() {
+        buscar_info_tabla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    mostrarCitasPendientes();
+                    buscar_citas_tabla();
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
             }
         });
-        actualizar_tabla_citas.addActionListener(new ActionListener() {
+        actualizar_tabla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    actualizarTabla();
+                    actualizar_citas_tabla();
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
 
             }
         });
-        limpiar_campos_citas.addActionListener(new ActionListener() {
+        limpiar_tabla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                limpiarCampos();
+                limpiar_citas_tabla();
+            }
+        });
+        verAgendaButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Citas_Pendientes_agenda agenda = new Citas_Pendientes_agenda();
+                agenda.iniciar();
+            }
+        });
+        eliminar_info_tabla.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    eliminar_citas_tabla();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
     }
@@ -209,6 +238,12 @@ public class Panel_Medico extends JFrame{
 
         if (alterar_fila > 0){
             JOptionPane.showMessageDialog(null, "Cita registrada exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            cedula_agregar_cita1.setText("");
+            fecha_cita1.setText("");
+            hora_cita1.setText("");
+            especialidad_cita1.setText("");
+            nombre_medico1.setText("");
+            motivo_cita1.setText("");
         } else {
             JOptionPane.showMessageDialog(null, "Error al registrar la cita", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -289,6 +324,17 @@ public class Panel_Medico extends JFrame{
         if (alterar_fila > 0){
             JOptionPane.showMessageDialog(null, "Cita registrada exitosamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
+            //se limpia los campos
+            cedula_consulta1.setText("");
+            fecha_consulta1.setText("");
+            motivo_consulta1.setText("");
+            diagnostico_consulta1.setText("");
+            tratamiento_consulta1.setText("");
+            medicamento_consulta1.setText("");
+            examen_consulta1.setText("");
+            resultados_consulta1.setText("");
+            notas_medico_consulta1.setText("");
+
             int idCita = obtenerIdCita(cedula_consulta0, fecha_consulta0);
 
             actualizarEstadoCita(idCita);
@@ -351,103 +397,125 @@ public class Panel_Medico extends JFrame{
         conectar.close();
     }
 
+    //MODIFICANDO LOS DATOS DE LAS CITAS QUE SE ENCEUNTRAN EN LA TABLA (ELIMINAR)
 
     /**
-     * Método para mostrar las citas pendientes en la tabla
+     * Método para buscar las citas pendientes en la tabla según la cédula y el médico seleccionado
      * @throws SQLException
      */
-    public void mostrarCitasPendientes() throws SQLException {
-        String cedula = cedula_historial_cita1.getText();
-
+    public void buscar_citas_tabla() throws SQLException {
         Connection conectar = conexion();
-        String sql = "SELECT * FROM citas WHERE cedula_paciente = ? AND estado_cita = 'Pendiente'";
+        String cedula = cedula_ver_cita1.getText();
+        String medico = (String) medico_ver.getSelectedItem();
+        String sql = "";
+
+        if (medico.equals("Alex Torres")) {
+            sql = "SELECT * FROM citas WHERE cedula_paciente = ? AND estado_cita = 'Pendiente' AND nombre_medico = 'Alex Torres'";
+        } else if (medico.equals("Victoria Paez")) {
+            sql = "SELECT * FROM citas WHERE cedula_paciente = ? AND estado_cita = 'Pendiente' AND nombre_medico = 'Victoria Paez'";
+        }
+
         PreparedStatement pstm = conectar.prepareStatement(sql);
         pstm.setString(1, cedula);
-
         ResultSet rs = pstm.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) tablaCitasPendientes.getModel();
+        model.setRowCount(0); // Limpiar tabla
 
-        // Crear el modelo de la tabla
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo.addColumn("Fecha de la Cita");
-        modelo.addColumn("Hora de la Cita");
-        modelo.addColumn("Especialidad");
-        modelo.addColumn("Motivo de la Cita");
-
-        // Llenar el modelo con los datos
         while (rs.next()) {
-            Object[] fila = new Object[4];
-            fila[0] = rs.getDate("fecha_cita");
-            fila[1] = rs.getTime("hora_cita");
-            fila[2] = rs.getString("especialidad");
-            fila[3] = rs.getString("motivo_cita");
-            modelo.addRow(fila);
+            Object[] row = {
+                    rs.getString("cedula_paciente"),
+                    rs.getDate("fecha_cita"),
+                    rs.getTime("hora_cita"),
+                    rs.getString("nombre_medico"),
+                    rs.getString("motivo_cita")
+            };
+            model.addRow(row);
         }
-
-        // Configurar la tabla
-        tabla_citas_pendientes.setModel(modelo);
-
         rs.close();
         pstm.close();
         conectar.close();
     }
 
     /**
-     * Método para mostrar todas las citas pendientes en la tabla
+     * Método para actualizar la tabla con todas las citas pendientes según el médico seleccionado
      * @throws SQLException
      */
-    public void mostrarTodasCitasPendientes() throws SQLException {
+    public void actualizar_citas_tabla() throws SQLException {
         Connection conectar = conexion();
-        String sql = "SELECT * FROM citas WHERE estado_cita = 'Pendiente'";
-        PreparedStatement pstm = conectar.prepareStatement(sql);
+        String medico = (String) medico_ver.getSelectedItem();
+        String sql = "";
 
-        ResultSet rs = pstm.executeQuery();
-
-        // Crear el modelo de la tabla
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo.addColumn("Fecha de la Cita");
-        modelo.addColumn("Hora de la Cita");
-        modelo.addColumn("Especialidad");
-        modelo.addColumn("Motivo de la Cita");
-
-        // Llenar el modelo con los datos
-        while (rs.next()) {
-            Object[] fila = new Object[4];
-            fila[0] = rs.getDate("fecha_cita");
-            fila[1] = rs.getTime("hora_cita");
-            fila[2] = rs.getString("especialidad");
-            fila[3] = rs.getString("motivo_cita");
-            modelo.addRow(fila);
+        if (medico.equals("Alex Torres")) {
+            sql = "SELECT * FROM citas WHERE estado_cita = 'Pendiente' AND nombre_medico = 'Alex Torres'";
+        } else if (medico.equals("Victoria Paez")) {
+            sql = "SELECT * FROM citas WHERE estado_cita = 'Pendiente' AND nombre_medico = 'Victoria Paez'";
         }
 
-        // Configurar la tabla
-        tabla_citas_pendientes.setModel(modelo);
+        PreparedStatement pstm = conectar.prepareStatement(sql);
+        ResultSet rs = pstm.executeQuery();
+        DefaultTableModel model = (DefaultTableModel) tablaCitasPendientes.getModel();
+        model.setRowCount(0); // Limpiar tabla
 
+        while (rs.next()) {
+            Object[] row = {
+                    rs.getString("cedula_paciente"),
+                    rs.getDate("fecha_cita"),
+                    rs.getTime("hora_cita"),
+                    rs.getString("nombre_medico"),
+                    rs.getString("motivo_cita")
+            };
+            model.addRow(row);
+        }
         rs.close();
         pstm.close();
         conectar.close();
     }
 
-
     /**
-     * Método para actualizar la tabla con todas las citas pendientes
-     * @throws SQLException
+     * Método para limpiar la información visualizada en la tabla
      */
-    public void actualizarTabla() throws SQLException {
-        mostrarTodasCitasPendientes();
+    public void limpiar_citas_tabla() {
+        DefaultTableModel model = (DefaultTableModel) tablaCitasPendientes.getModel();
+        model.setRowCount(0); // Limpiar todas las filas
     }
 
     /**
-     * Método para limpiar los campos de entrada y la tabla
+     * Método para eliminar una cita seleccionada de la tabla
+     * @throws SQLException
      */
-    public void limpiarCampos() {
-        // Limpiar campos de la tabla
-        cedula_historial_cita1.setText("");
-        nombre_paciente_cita1.setText("");
-        historial_paciente_cita1.setText("");
+    public void eliminar_citas_tabla() throws SQLException {
+        int selectedRow = tablaCitasPendientes.getSelectedRow();
+        if (selectedRow >= 0) {
+            String cedula = (String) tablaCitasPendientes.getValueAt(selectedRow, 0);
+            Date fecha = (Date) tablaCitasPendientes.getValueAt(selectedRow, 1);
+            Time hora = (Time) tablaCitasPendientes.getValueAt(selectedRow, 2);
+            String medico = (String) medico_ver.getSelectedItem();
+            String sql = "";
 
-        // Limpiar la tabla
-        DefaultTableModel modelo = (DefaultTableModel) tabla_citas_pendientes.getModel();
-        modelo.setRowCount(0); // Elimina todas las filas de la tabla
+            if (medico.equals("Alex Torres")) {
+                sql = "DELETE FROM citas WHERE cedula_paciente = ? AND fecha_cita = ? AND hora_cita = ? AND nombre_medico = 'Alex Torres'";
+            } else if (medico.equals("Victoria Paez")) {
+                sql = "DELETE FROM citas WHERE cedula_paciente = ? AND fecha_cita = ? AND hora_cita = ? AND nombre_medico = 'Victoria Paez'";
+            }
+
+            Connection conectar = conexion();
+            PreparedStatement pstm = conectar.prepareStatement(sql);
+            pstm.setString(1, cedula);
+            pstm.setDate(2, fecha);
+            pstm.setTime(3, hora);
+            int rowsAffected = pstm.executeUpdate();
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Cita eliminada con éxito", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                limpiar_citas_tabla(); // Limpiar tabla después de eliminar
+            } else {
+                JOptionPane.showMessageDialog(null, "No se pudo eliminar la cita", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+            pstm.close();
+            conectar.close();
+        } else {
+            JOptionPane.showMessageDialog(null, "Seleccione una cita para eliminar", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
     }
 
 
@@ -455,7 +523,7 @@ public class Panel_Medico extends JFrame{
     public void iniciar(){
         setVisible(true);
         setLocationRelativeTo(null);
-        setSize(500,450);
+        setSize(500,550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

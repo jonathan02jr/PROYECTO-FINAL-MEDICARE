@@ -65,7 +65,9 @@ public class Panel_Administrador extends JFrame{
     private JComboBox tipo_registro;
     private JButton actualizar_tabla;
 
-
+    /**
+     * Atributos para mostrar los reportes
+     */
     private JLabel info_n_citas1;
     private JLabel info_n_pacientes1;
     private JLabel info_n_medicos;
@@ -73,24 +75,25 @@ public class Panel_Administrador extends JFrame{
     private JLabel paciente_ultima_act1;
     private JLabel fecha_ultima_act1;
     private JButton actualizar_resportes;
+    private JLabel medico_ultima_act1;
 
     public Panel_Administrador(){
         super("Panel del Administrador");
         setContentPane(pantalla_admi);
 
 
-        //para poder utilizar la tabla y crear los campos de la informacion que se obtendra de la base de datos
+        //Para poder utilizar la tabla y crear los campos de la informacion que se obtendra de la base de datos
         //Titulos de los campos
         // Configurar el JComboBox
         tipo_registro.setModel(new DefaultComboBoxModel<>(new String[]{"Pacientes", "Medicos"}));
 
         // Configurar la tabla de registros
-        String[] columnNames = {"cedula", "nombre", "apellido", "email"};
+        String[] columnNames = {"Cedula", "Nombre", "Apellido", "Email"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         tabla_registros.setModel(model);
 
 
-        //CODIGO NORMAL
+        //BOTONES
         guardar_info_medico.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -520,7 +523,7 @@ public class Panel_Administrador extends JFrame{
     }
 
 
-    //CAMBIOS REALIZADOS PARA POR VER LA VISUALIZACION DE LOS REGISTROS
+    //FUNCIONALIDADES DE LA TABLA DE LOS REGISTROS DE PASCIENTES Y MEDICOS
 
     /**
      * Metodo para buscar los registros en la tabla
@@ -601,7 +604,7 @@ public class Panel_Administrador extends JFrame{
     }
 
     /**
-     * Metodo para eliminar los registros de una tabla ya sea del medio o del paciente
+     * Metodo para eliminar los registros de una tabla ya sea del medico o del paciente
      * @throws SQLException
      */
     public void eliminar_registro_tabla() throws SQLException {
@@ -634,6 +637,8 @@ public class Panel_Administrador extends JFrame{
         }
     }
 
+    //APARTADO PARA LA VISUALIZACION DE LOS REPORTES
+
     /**
      * metodo para actualizar los repsortes y asi poder visualizarlos
      * @throws SQLException
@@ -651,7 +656,7 @@ public class Panel_Administrador extends JFrame{
             info_n_citas1.setText(String.valueOf(totalCitas));
         }
 
-        // Consultar el número de pacientes
+        // Se consulta el numero de pacientes
         String sqlPacientes = "SELECT COUNT(*) AS total FROM pacientes";
         PreparedStatement pstmPacientes = conectar.prepareStatement(sqlPacientes);
         ResultSet rsPacientes = pstmPacientes.executeQuery();
@@ -660,7 +665,7 @@ public class Panel_Administrador extends JFrame{
             info_n_pacientes1.setText(String.valueOf(totalPacientes));
         }
 
-        // Consultar el número de médicos
+        // Se consulta el numero de medicos
         String sqlMedicos = "SELECT COUNT(*) AS total FROM medicos";
         PreparedStatement pstmMedicos = conectar.prepareStatement(sqlMedicos);
         ResultSet rsMedicos = pstmMedicos.executeQuery();
@@ -669,21 +674,25 @@ public class Panel_Administrador extends JFrame{
             info_n_medicos.setText(String.valueOf(totalMedicos));
         }
 
-        // Consultar la última cita y el nombre del paciente asociado
-        String sqlUltimaCita = "SELECT c.cedula_paciente, p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, c.fecha_cita " +
+        // Se consulta la ultima cita y el nombre del paciente asociado
+        String sqlUltimaCita = "SELECT c.cedula_paciente, p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, " +
+                "c.fecha_cita, c.nombre_medico " +
                 "FROM citas c " +
                 "JOIN pacientes p ON c.cedula_paciente = p.cedula " +
                 "ORDER BY c.fecha_cita DESC, c.hora_cita DESC LIMIT 1";
         PreparedStatement pstmUltimaCita = conectar.prepareStatement(sqlUltimaCita);
         ResultSet rsUltimaCita = pstmUltimaCita.executeQuery();
+
         if (rsUltimaCita.next()) {
             String cedulaPaciente = rsUltimaCita.getString("cedula_paciente");
             String nombrePaciente = rsUltimaCita.getString("paciente_nombre") + " " + rsUltimaCita.getString("paciente_apellido");
             java.sql.Date fechaCita = rsUltimaCita.getDate("fecha_cita");
+            String nombreMedico = rsUltimaCita.getString("nombre_medico");
 
             cedula_ultima_act1.setText(cedulaPaciente);
             paciente_ultima_act1.setText(nombrePaciente);
             fecha_ultima_act1.setText(fechaCita.toString());
+            medico_ultima_act1.setText(nombreMedico); // Asumiendo que has añadido este campo en tu interfaz
         }
 
         // Cerrar recursos
@@ -705,7 +714,9 @@ public class Panel_Administrador extends JFrame{
     public void iniciar(){
         setVisible(true);
         setLocationRelativeTo(null);
-        setSize(500,450);
+        setSize(500,500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
+
+
 }
