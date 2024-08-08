@@ -19,9 +19,9 @@ public class Login extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                String url = "jdbc:mysql://localhost:3306/medicare";
-                String user = "root";
-                String password = "";
+                String url = "jdbc:mysql://uxswl9ehwsjiepbv:T6PAStsLarGkxAVYarvg@b4xspwhutpsd0fxmtffw-mysql.services.clever-cloud.com:3306/b4xspwhutpsd0fxmtffw";
+                String user = "uxswl9ehwsjiepbv";
+                String password = "T6PAStsLarGkxAVYarvg";
 
                 try (Connection conecta = DriverManager.getConnection(url,user,password)){
                     System.out.println("Conectado a la base de datos");

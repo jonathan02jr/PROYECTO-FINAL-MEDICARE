@@ -165,9 +165,9 @@ public class Panel_Medico extends JFrame{
      * @throws SQLException
      */
     public Connection conexion() throws SQLException {
-        String url = "jdbc:mysql://localhost:3306/medicare";
-        String user = "root";
-        String password = "";
+        String url = "jdbc:mysql://uxswl9ehwsjiepbv:T6PAStsLarGkxAVYarvg@b4xspwhutpsd0fxmtffw-mysql.services.clever-cloud.com:3306/b4xspwhutpsd0fxmtffw";
+        String user = "uxswl9ehwsjiepbv";
+        String password = "T6PAStsLarGkxAVYarvg";
 
         return DriverManager.getConnection(url,user,password);
     }
