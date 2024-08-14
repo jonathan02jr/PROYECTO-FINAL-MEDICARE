@@ -9,9 +9,9 @@ create table acceso (
 
 insert into acceso
 values ('jonathan','jonathan123','Administrador'),
-('jair','jair123','Medico'),
-('jorgue','jorgue123','Medico'),
-('jadira','jadira123','Administrador');
+('jorgue','jorgue123','Administrador'),
+('alex','alex123','Medico'),
+('victoria','victoria123','Medica');
 
 select * from acceso;
 
